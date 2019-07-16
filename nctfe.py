@@ -38,15 +38,12 @@ def ncfmt(y, x, stdscr, board, cell_width=7):
         for j in range(board.n):
             square = board.squares[i * board.n + j]
             if square:
-                stdscr.addstr(y + 2 * i + 1, x + 1 + (cell_width + 1) * j,
-                              "{:{}}".format(square, cell_width),
+                stdscr.addstr("{:{}}".format(square, cell_width),
                               curses.color_pair(
                                     min(ilog(square), len(ANSI_VALS))))
-                stdscr.addstr(y + 2 * i + 1, x + (cell_width + 1) * (j + 1),
-                              "|")
+                stdscr.addstr("|")
             else:
-                stdscr.addstr(y + 2 * i + 1, x + 1 + (cell_width + 1) * j,
-                              "{}|".format(" " * cell_width))
+                stdscr.addstr("{}|".format(" " * cell_width))
     stdscr.addstr(y + 2 * board.n, x, ("-" * cell_width)
                                         .join("+" * (board.n + 1)))
 
