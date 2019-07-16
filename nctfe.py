@@ -16,13 +16,15 @@ def get_args():
             help="Allow using the arrow keys. Not recommended for cool people")
     parser.add_argument("--auto", action="store_true",
             help="Play automatically, by trying to go left, up, right, down")
-    parser.add_argument("--auto-chunk", default=1000, type=int,
+    parser.add_argument("--auto-chunk", type=int,
             help="Number of game steps to do in between refreshing the screen")
     parser.add_argument("n", type=int, nargs="?", default=4,
             help="Board size")
     args = parser.parse_args()
-    if args.auto_chunk and not args.auto:
+    if args.auto_chunk is not None and not args.auto:
         parser.error("--auto-chunk must be used with --auto")
+    if args.auto_chunk is None:
+        args.auto_chunk = 1000
     return args
 
 def ncfmt(y, x, stdscr, board, cell_width=7):
