@@ -158,24 +158,14 @@ class TFEBoard:
         """
         Separate method because it supports various other flags
         """
-        if hide_z:
-            process_func = lambda n: n or ' '
-        else:
-            process_func = lambda n: n
-        if not ansi:
-            return (make_templ(self.n, cell_width)
-                        .format(
-                            *chain.from_iterable(
-                                    ('', process_func(s), '')
-                                    for s in self.squares)))
-        else:
-            return (make_templ(self.n, cell_width)
-                        .format(
-                            *chain.from_iterable(
-                                    (ANSI_ESCS[ilog(s)],
-                                     process_func(s),
-                                     "\x1b[0m")
-                                    for s in self.squares)))
+        return (make_templ(self.n, cell_width)
+                    .format(
+                        *chain.from_iterable(
+                                (ANSI_ESCS[min(ilog(s), len(ANSI_ESCS) - 1)]
+                                    if ansi else '',
+                                 s or ' ' if hide_z else s,
+                                 "\x1b[0m" if ansi else '')
+                                for s in self.squares)))
 
     def __str__(self):
         """
