@@ -14,9 +14,16 @@ def get_args():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--allow-arrows", action="store_true",
             help="Allow using the arrow keys. Not recommended for cool people")
+    parser.add_argument("--auto", action="store_true",
+            help="Play automatically, by trying to go left, up, right, down")
+    parser.add_argument("--auto-chunk", default=1000, type=int,
+            help="Number of game steps to do in between refreshing the screen")
     parser.add_argument("n", type=int, nargs="?", default=4,
             help="Board size")
-    return parser.parse_args()
+    args = parser.parse_args()
+    if args.auto_chunk and not args.auto:
+        parser.error("--auto-chunk must be used with --auto")
+    return args
 
 def ncfmt(y, x, stdscr, board, cell_width=7):
     """
@@ -41,11 +48,13 @@ def ncfmt(y, x, stdscr, board, cell_width=7):
     stdscr.addstr(y + 2 * board.n, x, ("-" * cell_width)
                                         .join("+" * (board.n + 1)))
 
-def main(stdscr, n, allow_arrows):
+def main(stdscr, n, allow_arrows, auto, auto_chunk):
     """
     The main function, to be wrapped by curses
     """
     curses.curs_set(False)
+    if auto:
+        stdscr.nodelay(True)
     board = TFEBoard(n)
     move_map = {}
     for move, action, key in zip("HJKL", [board.left, board.down,
@@ -61,15 +70,36 @@ def main(stdscr, n, allow_arrows):
     for ind, i in enumerate(ANSI_VALS, 1):
             curses.init_pair(ind, *reversed(i))
     while True:
-        stdscr.clear()
+        stdscr.erase()
         stdscr.addstr(0, 0, "Score: {}".format(board.score))
         ncfmt(1, 0, stdscr, board)
-        c = stdscr.getch()
-        if c in {ord("q"), ord("Q")}:
-            break
-        elif c in move_map:
-            move_map[c]()
+        if auto:
+            if stdscr.getch() in {ord("q"), ord("Q")}:
+                break
+            i_want_to_break_free = False
+            for _ in range(auto_chunk):
+                for move in [board.left, board.up, board.right, board.down]:
+                    if move():
+                        break
+                else:
+                    i_want_to_break_free = True
+                    break
+            if i_want_to_break_free:
+                break
+        else:
+            c = stdscr.getch()
+            if c in {ord("q"), ord("Q")}:
+                break
+            elif c in move_map:
+                move_map[c]()
         stdscr.refresh()
+    if auto:
+        stdscr.nodelay(False)
+    stdscr.erase()
+    stdscr.addstr(0, 0, "GAME OVER: {}".format(board.score),
+                  curses.color_pair(1))
+    ncfmt(1, 0, stdscr, board)
+    stdscr.getch()
 
 if __name__ == "__main__":
     args = get_args()

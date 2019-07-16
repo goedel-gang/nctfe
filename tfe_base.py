@@ -6,14 +6,12 @@ class does provide some string formatting.
 from itertools import repeat, chain, starmap
 from random import choice, random
 
+# the xterm-256 type colours to be used in SGR escapes to colour tiles.
 ANSI_VALS = [
-        (0, 15),
-        (226, 0),
-        (46, 0),
-        (208, 15),
-        (33, 15),
-        (135, 15),
-        (130, 15)]
+        (0, 15), (226, 0), (46, 0), (208, 15), (33, 15), (135, 15), (130, 15),
+        (125, 15), (123, 0), (120, 0), (52, 15), (160, 15), (214, 0), (53, 15),
+        (17, 15), (87, 15), (255, 0), *((i, 15) for i in range(1, 16))
+        ]
 
 ANSI_ESCS = list(starmap("\x1b[48;5;{}m\x1b[38;5;{}m".format, ANSI_VALS))
 
@@ -71,6 +69,7 @@ class TFEBoard:
         of being a 4.
         """
         available = [ind for ind, i in enumerate(self.squares) if i == 0]
+        # currently this isn't actually ever reached.
         if not available:
             raise GameOver("The board is full.")
         loc = choice(available)
@@ -129,30 +128,31 @@ class TFEBoard:
         # only add another if the move had some effect
         if any_moved:
             self.add_random()
+        return any_moved
 
     def up(self):
         """
         Sift up
         """
-        self.sift_all(self.up_seq)
+        return self.sift_all(self.up_seq)
 
     def down(self):
         """
         Sift down
         """
-        self.sift_all(self.down_seq)
+        return self.sift_all(self.down_seq)
 
     def left(self):
         """
         Sift left
         """
-        self.sift_all(self.left_seq)
+        return self.sift_all(self.left_seq)
 
     def right(self):
         """
         Sift right
         """
-        self.sift_all(self.right_seq)
+        return self.sift_all(self.right_seq)
 
     def w_fmt(self, cell_width=7, ansi=False, hide_z=True):
         """
