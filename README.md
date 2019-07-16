@@ -12,3 +12,5 @@ Also features preposterously large boards and autoplay mode so you can make
 impressive screenshots like this:
 
 ![screenshot](https://github.com/goedel-gang/nctfe/blob/master/win_screenshot_20190716_162511.png)
+
+This mode is best leveraged with PyPy.

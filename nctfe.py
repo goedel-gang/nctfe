@@ -3,6 +3,7 @@ NCurses 2048
 """
 
 import curses
+import curses.ascii
 import argparse
 
 from tfe_base import TFEBoard, ANSI_VALS, ilog
@@ -69,12 +70,17 @@ def main(stdscr, n, allow_arrows, auto, auto_chunk):
     for ind, i in enumerate(ANSI_VALS, 1):
             curses.init_pair(ind, *reversed(i))
     while True:
+        stdscr.refresh()
         stdscr.erase()
         stdscr.addstr(0, 0, "Score: {}".format(board.score))
         ncfmt(1, 0, stdscr, board)
-        if auto:
-            if stdscr.getch() in {ord("q"), ord("Q")}:
-                break
+        c = stdscr.getch()
+        if c in {ord("q"), ord("Q"), curses.ascii.ESC}:
+            break
+        # automatically redraw after window resize
+        elif c in {curses.KEY_RESIZE, curses.ascii.ctrl(ord("L"))}:
+            stdscr.clear()
+        elif auto:
             i_want_to_break_free = False
             for _ in range(auto_chunk):
                 for move in [board.left, board.up, board.right, board.down]:
@@ -86,19 +92,17 @@ def main(stdscr, n, allow_arrows, auto, auto_chunk):
             if i_want_to_break_free:
                 break
         else:
-            c = stdscr.getch()
-            if c in {ord("q"), ord("Q")}:
-                break
-            elif c in move_map:
+            if c in move_map:
                 move_map[c]()
-        stdscr.refresh()
     if auto:
         stdscr.nodelay(False)
     stdscr.erase()
     stdscr.addstr(0, 0, "GAME OVER: {}".format(board.score),
                   curses.color_pair(1))
     ncfmt(1, 0, stdscr, board)
-    stdscr.getch()
+    while True:
+        if stdscr.getch() in {ord("q"), ord("Q"), curses.ascii.ESC}:
+            break
 
 if __name__ == "__main__":
     args = get_args()
