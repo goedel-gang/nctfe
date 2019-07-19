@@ -5,6 +5,7 @@ class does provide some string formatting.
 
 from itertools import repeat, chain, starmap
 from random import choice, random
+from functools import lru_cache
 
 # the xterm-256 type colours to be used in SGR escapes to colour tiles.
 ANSI_VALS = [
@@ -27,6 +28,8 @@ def ilog(n, base=2):
         exp += 1
     return exp
 
+# cached to speed it up
+@lru_cache()
 def make_templ(n, cell_width):
     """
     Make a template for str.format for a board, in the most ghastly one-liner I
