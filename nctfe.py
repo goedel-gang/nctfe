@@ -1,5 +1,5 @@
 """
-NCurses 2048
+2048: NCurses + Vi edition
 """
 
 import curses
