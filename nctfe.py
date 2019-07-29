@@ -8,24 +8,37 @@ import argparse
 
 from tfe_base import TFEBoard, ANSI_VALS, ilog
 
+class DefaultSentinel:
+    """
+    Little class to store default values, but also allow testing against its ID
+    to see if an actual argument was given.
+    """
+    def __init__(self, val):
+        self.val = val
+
+    def __str__(self):
+        return str(self.val)
+
 def get_args():
     """
     Parse arg
     """
-    parser = argparse.ArgumentParser(description=__doc__)
+    chunk_sentinel = DefaultSentinel(1000)
+    parser = argparse.ArgumentParser(description=__doc__,
+            formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--allow-arrows", action="store_true",
             help="Allow using the arrow keys. Not recommended for cool people")
     parser.add_argument("--auto", action="store_true",
             help="Play automatically, by trying to go left, up, right, down")
-    parser.add_argument("--auto-chunk", type=int,
+    parser.add_argument("--auto-chunk", type=int, default=chunk_sentinel,
             help="Number of game steps to do in between refreshing the screen")
     parser.add_argument("n", type=int, nargs="?", default=4,
             help="Board size")
     args = parser.parse_args()
-    if args.auto_chunk is not None and not args.auto:
-        parser.error("--auto-chunk must be used with --auto")
-    if args.auto_chunk is None:
-        args.auto_chunk = 1000
+    if args.auto_chunk is not chunk_sentinel and not args.auto:
+        parser.error("--auto-chunk can only be used with --auto")
+    if args.auto_chunk is chunk_sentinel:
+        args.auto_chunk = args.auto_chunk.val
     return args
 
 def ncfmt(y, x, stdscr, board, cell_width=7):
