@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
 2048: NCurses + Vi edition
 """
