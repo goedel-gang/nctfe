@@ -19,7 +19,7 @@ ANSI_ESCS = list(starmap("\x1b[48;5;{}m\x1b[38;5;{}m".format, ANSI_VALS))
 def ilog(n, base=2):
     """
     Simple iterative integer logarithm.
-    Even though there's a loop, this is logarithmic in the number of bits of the
+    Even though there's a loop, this is linear in the number of bits of the
     input, so basically pretty fast
     """
     exp = 0
